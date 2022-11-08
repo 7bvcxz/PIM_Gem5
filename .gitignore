@@ -31,4 +31,6 @@ m5out
 configs/example/memcheck.cfg
 configs/dram/lowp_sweep.cfg
 .pyenv
+/ext/dramsim3/DRAMsim3
+/ext/PIMsim/PIMsim
 disks/*
