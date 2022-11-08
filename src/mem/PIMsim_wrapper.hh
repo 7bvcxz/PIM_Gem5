@@ -38,11 +38,11 @@
 
 /**
  * @file
- * DRAMsim3Wrapper declaration
+ * PIMsimWrapper declaration
  */
 
-#ifndef __MEM_DRAMSIM3_WRAPPER_HH__
-#define __MEM_DRAMSIM3_WRAPPER_HH__
+#ifndef __MEM_PIMSIM_WRAPPER_HH__
+#define __MEM_PIMSIM_WRAPPER_HH__
 
 #include <functional>
 #include <string>
@@ -55,6 +55,7 @@ namespace dramsim3 {
 class MemorySystem;
 
 }
+
 namespace gem5
 {
 
@@ -69,12 +70,12 @@ namespace memory
  * callbacks. This wrapper effectively avoids clashes by not including
  * any of the conventional gem5 headers (e.g. Packet or SimObject).
  */
-class DRAMsim3Wrapper
+class PIMsimWrapper
 {
 
   private:
 
-    dramsim3::MemorySystem* dramsim;
+    dramsim3::MemorySystem* PIMsim;
 
     double _clockPeriod;
 
@@ -89,20 +90,20 @@ class DRAMsim3Wrapper
   public:
 
     /**
-     * Create an instance of the DRAMsim3 multi-channel memory
+     * Create an instance of the PIMsim
      * controller using a specific config and system description.
      *
      * @param config_file Memory config file
      * @param working_dir Path pre-pended to config files
      */
-    DRAMsim3Wrapper(const std::string& config_file,
+    PIMsimWrapper(const std::string& config_file,
                     const std::string& working_dir,
-                    std::function<void(uint64_t)> read_cb,
+                    std::function<void(uint64_t,uint8_t*)> read_cb,
                     std::function<void(uint64_t)> write_cb);
-    ~DRAMsim3Wrapper();
+    ~PIMsimWrapper();
 
     /**
-     * Print the stats gathered in DRAMsim3.
+     * Print the stats gathered in PIMsim.
      */
     void printStats();
 
@@ -117,8 +118,8 @@ class DRAMsim3Wrapper
      * @param read_callback Callback used for read completions
      * @param write_callback Callback used for write completions
      */
-    void setCallbacks(std::function<void(uint64_t)> read_complete,
-                      std::function<void(uint64_t)> write_complete);
+    // void setCallbacks(std::function<void(uint64_t)> read_complete,
+    //                   std::function<void(uint64_t)> write_complete);
 
     /**
      * Determine if the controller can accept a new packet or not.
@@ -130,12 +131,12 @@ class DRAMsim3Wrapper
     /**
      * Enqueue a packet. This assumes that canAccept has returned true.
      *
-     * @param pkt Packet to turn into a DRAMsim3 transaction
+     * @param pkt Packet to turn into a PIMsim transaction
      */
-    void enqueue(uint64_t addr, bool is_write);
+    void enqueue(uint64_t addr, bool is_write, uint8_t * DataPtr);
 
     /**
-     * Get the internal clock period used by DRAMsim3, specified in
+     * Get the internal clock period used by PIMsim, specified in
      * ns.
      *
      * @return The clock period of the DRAM interface in ns
@@ -143,14 +144,14 @@ class DRAMsim3Wrapper
     double clockPeriod() const;
 
     /**
-     * Get the transaction queue size used by DRAMsim3.
+     * Get the transaction queue size used by PIMsim.
      *
      * @return The queue size counted in number of transactions
      */
     unsigned int queueSize() const;
 
     /**
-     * Get the burst size in bytes used by DRAMsim3.
+     * Get the burst size in bytes used by PIMsim.
      *
      * @return The burst size in bytes (data width * burst length)
      */
@@ -160,9 +161,13 @@ class DRAMsim3Wrapper
      * Progress the memory controller one cycle
      */
     void tick();
+    /**
+     * Pass Physical memory address and size to DRAMsim
+     */
+    void init(uint8_t* pmemAddr, uint64_t size);
 };
 
 } // namespace memory
 } // namespace gem5
 
-#endif //__MEM_DRAMSIM3_WRAPPER_HH__
+#endif //__MEM_PIMsim_WRAPPER_HH__

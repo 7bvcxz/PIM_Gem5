@@ -119,6 +119,13 @@ if env['HAVE_DRAMSIM3']:
     Source('dramsim3_wrapper.cc')
     Source('dramsim3.cc')
 
+# >> KKM 22/10/19 Added HAVE_PIMsim option
+if env['HAVE_PIMsim']:
+    SimObject('PIMsim.py', sim_objects=['PIMsim'])
+    Source('PIMsim_wrapper.cc')
+    Source('PIMsim.cc')
+# KKM << 
+
 SimObject('MemChecker.py', sim_objects=['MemChecker', 'MemCheckerMonitor'])
 Source('mem_checker.cc')
 Source('mem_checker_monitor.cc')
@@ -148,6 +155,8 @@ DebugFlag('PacketQueue')
 DebugFlag('StackDist')
 DebugFlag("DRAMSim2")
 DebugFlag("DRAMsim3")
+DebugFlag("PIMsim")  # >> KKM << 22/10/19 Add Debug Flag
+DebugFlag("PIMAccess")  # >> KKM << 22/10/19 Add Debug Flag
 DebugFlag('HMCController')
 DebugFlag('SerialLink')
 DebugFlag('TokenPort')

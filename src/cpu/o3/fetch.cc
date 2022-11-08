@@ -80,7 +80,7 @@ Fetch::IcachePort::IcachePort(Fetch *_fetch, CPU *_cpu) :
         RequestPort(_cpu->name() + ".icache_port", _cpu), fetch(_fetch)
 {}
 
-
+// >> KKM << 22.10.28  changed params.fetchBufferSize → cpu->cacheLineSize()
 Fetch::Fetch(CPU *_cpu, const BaseO3CPUParams &params)
     : fetchPolicy(params.smtFetchPolicy),
       cpu(_cpu),
@@ -94,7 +94,7 @@ Fetch::Fetch(CPU *_cpu, const BaseO3CPUParams &params)
       retryPkt(NULL),
       retryTid(InvalidThreadID),
       cacheBlkSize(cpu->cacheLineSize()),
-      fetchBufferSize(params.fetchBufferSize),
+      fetchBufferSize(cpu->cacheLineSize()),
       fetchBufferMask(fetchBufferSize - 1),
       fetchQueueSize(params.fetchQueueSize),
       numThreads(params.numThreads),

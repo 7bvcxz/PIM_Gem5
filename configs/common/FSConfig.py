@@ -440,8 +440,9 @@ def connectX86RubySystem(x86_sys):
     x86_sys._dma_ports = [x86_sys.pc.south_bridge.ide.dma]
     x86_sys.pc.attachIO(x86_sys.iobus, x86_sys._dma_ports)
 
-
-def makeX86System(mem_mode, numCPUs=1, mdesc=None, workload=None, Ruby=False):
+# >> KKM << 22/10/19 Added isPIMsim Option
+def makeX86System(mem_mode, numCPUs=1, mdesc=None, workload=None, Ruby=False,
+        isPIMsim=False):
     self = System()
 
     self.m5ops_base = 0xffff0000
@@ -469,9 +470,14 @@ def makeX86System(mem_mode, numCPUs=1, mdesc=None, workload=None, Ruby=False):
         warn("Physical memory size specified is %s which is greater than " \
              "3GB.  Twice the number of memory controllers would be " \
              "created."  % (mdesc.mem()))
-
+        # >> KKM  22/10/27 Added isPIMsim case
+        if isPIMsim and False:
+            self.mem_ranges = [AddrRange('3GB'),
+                AddrRange(Addr('4GB'),
+                    size = excess_mem_size+convert.toMemorySize('4GB'))]
         self.mem_ranges = [AddrRange('3GB'),
             AddrRange(Addr('4GB'), size = excess_mem_size)]
+        # KKM <<
 
     # Platform
     self.pc = Pc()
@@ -584,10 +590,13 @@ def makeX86System(mem_mode, numCPUs=1, mdesc=None, workload=None, Ruby=False):
     workload.acpi_description_table_pointer.xsdt.oem_id='gem5'
     return self
 
+# >> KKM << 22/10/18 Added isPIMsim Option
 def makeLinuxX86System(mem_mode, numCPUs=1, mdesc=None, Ruby=False,
-                       cmdline=None):
+                       cmdline=None, isPIMsim=False ):
     # Build up the x86 system and then specialize it for Linux
-    self = makeX86System(mem_mode, numCPUs, mdesc, X86FsLinux(), Ruby)
+    # >> KKM << 22/10/18 Added isPIMsim Option
+    self = makeX86System(mem_mode, numCPUs, mdesc, X86FsLinux(), Ruby,
+            isPIMsim=isPIMsim)
 
     # We assume below that there's at least 1MB of memory. We'll require 2
     # just to avoid corner cases.
@@ -621,9 +630,23 @@ def makeLinuxX86System(mem_mode, numCPUs=1, mdesc=None, Ruby=False,
     # parts and add a separate e820 entry for the second part.  This entry
     # starts at 0x100000000,  which is the first address after the space
     # reserved for devices.
+    # >> KKM 22/10/18 Added Reserved Space for PIM
+    print(">> KKM Debug << FSConfig 1")
     if len(self.mem_ranges) == 2:
-        entries.append(X86E820Entry(addr = 0x100000000,
-            size = '%dB' % (self.mem_ranges[1].size()), range_type = 1))
+        if isPIMsim or True:
+            print(">> KKM Debug, Memory Range Setting : OK")
+            entries.append(X86E820Entry(addr = 0x100000000,
+                size = '%dB' % (self.mem_ranges[1].size()-
+                convert.toMemorySize('4GB')), range_type = 1))
+                # add reserved space for PIM
+            entries.append(X86E820Entry(addr = 0x100000000 +
+                self.mem_ranges[1].size() - convert.toMemorySize('4GB'),
+                size = '4GB', range_type = 2))
+        else:
+            entries.append(X86E820Entry(addr = 0x100000000,
+                size = '%dB' % (self.mem_ranges[1].size()), range_type = 1))
+    print(">> KKM Debug << FSConfig 2")
+    # KKM <<
 
     self.workload.e820_table.entries = entries
 

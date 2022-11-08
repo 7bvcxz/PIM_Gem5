@@ -47,115 +47,122 @@
 #undef DEBUG
 #endif
 
-#include "mem/dramsim3_wrapper.hh"
+#include "mem/PIMsim_wrapper.hh"
 
 #include <fstream>
 
-#include "DRAMsim3/src/dramsim3.h"
+#include "PIMsim/src/dramsim3.h"
 #include "base/compiler.hh"
 #include "base/logging.hh"
 
 namespace gem5
 {
+
 namespace memory
 {
 
-// >> KKM << 22/10/19 Caution..! if there is ext/dramsim3/DRAMsim3, error causes
-
-DRAMsim3Wrapper::DRAMsim3Wrapper(const std::string& config_file,
+PIMsimWrapper::PIMsimWrapper(const std::string& config_file,
                                  const std::string& working_dir,
-                                 std::function<void(uint64_t)> read_cb,
+                                 std::function<void(uint64_t,uint8_t*)>
+                                 read_cb,
                                  std::function<void(uint64_t)> write_cb) :
-    dramsim(dramsim3::GetMemorySystem(config_file, working_dir,
+    PIMsim(dramsim3::GetMemorySystem(config_file, working_dir,
                                        read_cb, write_cb)),
     _clockPeriod(0.0), _queueSize(0), _burstSize(0)
 {
-    // there is no way of getting DRAMsim3 to tell us what frequency
+    // there is no way of getting PIMsim to tell us what frequency
     // it is assuming, so we have to extract it ourselves
-    _clockPeriod = dramsim->GetTCK();
+    _clockPeriod = PIMsim->GetTCK();
 
     if (!_clockPeriod)
-        fatal("DRAMsim3 wrapper failed to get clock\n");
+        fatal("PIMsim wrapper failed to get clock\n");
 
-    // we also need to know what transaction queue size DRAMsim3 is
+    // we also need to know what transaction queue size PIMsim is
     // using so we can stall when responses are blocked
-    _queueSize = dramsim->GetQueueSize();
+    _queueSize = PIMsim->GetQueueSize();
 
     if (!_queueSize)
-        fatal("DRAMsim3 wrapper failed to get queue size\n");
+        fatal("PIMsim wrapper failed to get queue size\n");
 
 
    // finally, get the data bus bits and burst length so we can add a
    // sanity check for the burst size
-   unsigned int dataBusBits = dramsim->GetBusBits();
-   unsigned int burstLength = dramsim->GetBurstLength();
+   unsigned int dataBusBits = PIMsim->GetBusBits();
+   unsigned int burstLength = PIMsim->GetBurstLength();
 
    if (!dataBusBits || !burstLength)
-       fatal("DRAMsim3 wrapper failed to get burst size\n");
+       fatal("PIMsim wrapper failed to get burst size\n");
 
    _burstSize = dataBusBits * burstLength / 8;
 }
 
-DRAMsim3Wrapper::~DRAMsim3Wrapper()
+PIMsimWrapper::~PIMsimWrapper()
 {
-    delete dramsim;
+    delete PIMsim;
 }
 
 
 void
-DRAMsim3Wrapper::printStats()
+PIMsimWrapper::printStats()
 {
-    dramsim->PrintStats();
+    PIMsim->PrintStats();
 }
 
 void
-DRAMsim3Wrapper::resetStats()
+PIMsimWrapper::resetStats()
 {
-    dramsim->ResetStats();
+    PIMsim->ResetStats();
 }
 
-void
-DRAMsim3Wrapper::setCallbacks(std::function<void(uint64_t)> read_complete,
-                              std::function<void(uint64_t)> write_complete)
-{
-    dramsim->RegisterCallbacks(read_complete, write_complete);
-}
+// void
+// PIMsimWrapper::setCallbacks(std::function<void(uint64_t)> read_complete,
+//                               std::function<void(uint64_t)> write_complete)
+// {
+//     PIMsim->RegisterCallbacks(read_complete, write_complete);
+// }
 
 bool
-DRAMsim3Wrapper::canAccept(uint64_t addr, bool is_write) const
+PIMsimWrapper::canAccept(uint64_t addr, bool is_write) const
 {
-    return dramsim->WillAcceptTransaction(addr, is_write);
+    return PIMsim->WillAcceptTransaction(addr, is_write);
 }
 
 void
-DRAMsim3Wrapper::enqueue(uint64_t addr, bool is_write)
+PIMsimWrapper::enqueue(uint64_t addr, bool is_write, uint8_t * DataPtr)
 {
-    [[maybe_unused]] bool success = dramsim->AddTransaction(addr, is_write);
+    M5_VAR_USED bool success = PIMsim->AddTransaction(addr,
+                                                is_write, DataPtr);
     assert(success);
 }
 
 double
-DRAMsim3Wrapper::clockPeriod() const
+PIMsimWrapper::clockPeriod() const
 {
     return _clockPeriod;
 }
 
 unsigned int
-DRAMsim3Wrapper::queueSize() const
+PIMsimWrapper::queueSize() const
 {
     return _queueSize;
 }
 
 unsigned int
-DRAMsim3Wrapper::burstSize() const
+PIMsimWrapper::burstSize() const
 {
     return _burstSize;
 }
 
 void
-DRAMsim3Wrapper::tick()
+PIMsimWrapper::tick()
 {
-    dramsim->ClockTick();
+    PIMsim->ClockTick();
+}
+
+void
+PIMsimWrapper::init(uint8_t* pmemAddr, uint64_t size)
+{
+    PIMsim->init(pmemAddr,size,_burstSize);
 }
 
 } // namespace memory

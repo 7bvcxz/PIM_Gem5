@@ -54,6 +54,7 @@ class AbstractGeneratorCore(AbstractCore):
         # TODO: Remove the CPU Type parameter. This not needed.
         # Jira issue here: https://gem5.atlassian.net/browse/GEM5-1031
         super().__init__(CPUTypes.TIMING)
+        requires(isa_required=ISA.NULL)
         self.port_end = PortTerminator()
 
     @overrides(AbstractCore)

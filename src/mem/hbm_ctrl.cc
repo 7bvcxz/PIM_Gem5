@@ -488,14 +488,5 @@ HBMCtrl::drainResume()
     isTimingMode = system()->isTimingMode();
 }
 
-AddrRangeList
-HBMCtrl::getAddrRanges()
-{
-    AddrRangeList ranges;
-    ranges.push_back(pc0Int->getAddrRange());
-    ranges.push_back(pc1Int->getAddrRange());
-    return ranges;
-}
-
 } // namespace memory
 } // namespace gem5

@@ -338,16 +338,24 @@ def get_resource(
     # same resources at once. The timeout here is somewhat arbitarily put at 15
     # minutes.Most resources should be downloaded and decompressed in this
     # timeframe, even on the most constrained of systems.
+    print(">> kkm << downloader.py → get_resource 1")
+    return
     with FileLock("{}.lock".format(to_path), timeout=900):
+        print(">> kkm << downloader.py → get_resource 2")
 
         resource_json = get_resources_json_obj(resource_name)
+        print(">> kkm << downloader.py → get_resource 3")
 
         if os.path.exists(to_path):
+            print(">> kkm << downloader.py → get_resource 4")
 
             if os.path.isfile(to_path):
                 md5 = md5_file(Path(to_path))
             else:
                 md5 = md5_dir(Path(to_path))
+            print(">> kkm << downloader.py → get_resource 5")
+
+            return  # >> kkm << just for a while
 
             if md5 == resource_json["md5sum"]:
                 # In this case, the file has already been download, no need to
@@ -363,7 +371,10 @@ def get_resource(
                     "There already a file present at '{}' but "
                     "its md5 value is invalid.".format(to_path)
                 )
-
+        print(">> kkm << downloader.py → get_resource 6")
+        
+        # >> kkm <<
+        """
         download_dest = to_path
 
         # This if-statement is remain backwards compatable with the older,
@@ -409,6 +420,7 @@ def get_resource(
 
         _download(url=url, download_to=download_dest)
         print("Finished downloading resource '{}'.".format(resource_name))
+        
 
         if run_unzip:
             print(
@@ -435,3 +447,4 @@ def get_resource(
             with tarfile.open(download_dest) as f:
                 f.extractall(unpack_to)
             os.remove(download_dest)
+        """

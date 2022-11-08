@@ -36,28 +36,27 @@
 from m5.params import *
 from m5.objects.AbstractMemory import *
 
-# A wrapper for DRAMSim3 multi-channel memory controller
-class DRAMsim3(AbstractMemory):
-    type = 'DRAMsim3'
-    cxx_header = "mem/dramsim3.hh"
-    cxx_class = 'gem5::memory::DRAMsim3'
+# A wrapper for PIMsim
+class PIMsim(AbstractMemory):
+    type = 'PIMsim'
+    cxx_header = "mem/PIMsim.hh"
+    cxx_class = 'gem5::memory::PIMsim'
 
     # A single port for now
     port = ResponsePort("port for receiving requests from"
                         "the CPU or other requestor")
 
-    configFile = Param.String("ext/dramsim3/DRAMsim3/configs/"
+    configFile = Param.String("ext/PIMsim/PIMsim/configs/"
                               "DDR4_8Gb_x8_2400.ini",
-                              "The configuration file to use with DRAMSim3")
-    filePath = Param.String("ext/dramsim3/DRAMsim3/",
+                              "The configuration file to use with PIMsim")
+    filePath = Param.String("ext/PIMsim/PIMsim/",
                             "Directory to prepend to file names")
+
     def controller(self, ini_path):
         self.configFile = ini_path
         return self
 
-# >> KKM 22/10/18 Added DS3MemCtrl
-class DS3MemCtrl(DRAMsim3):
+class PIMsimMemCtrl(PIMsim):
     def __init__(self, ini_path):
-        super(DS3MemCtrl, self).__init__()
+        super(PIMsimMemCtrl, self).__init__()
         self.configFile = ini_path
-# KKM <<

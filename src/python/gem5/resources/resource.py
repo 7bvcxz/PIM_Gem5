@@ -138,11 +138,13 @@ class Resource(AbstractResource):
         re-downloaded if this value is True. Otherwise an exception will be
         thrown. True by default.
         """
+        print(">> kkm << resource.py → 1")
 
         if resource_directory == None:
             resource_directory = os.getenv(
                 "GEM5_RESOURCE_DIR", self._get_default_resource_dir()
             )
+        print(">> kkm << resource.py → 2")
 
         if os.path.exists(resource_directory):
             if not os.path.isdir(resource_directory):
@@ -159,6 +161,7 @@ class Resource(AbstractResource):
             # which lose this race will thrown a `FileExistsError` exception.
             # `exit_ok=True` ensures no exception is thrown.
             os.makedirs(resource_directory, exist_ok=True)
+        print(">> kkm << resource.py → 3")
 
         to_path = os.path.join(resource_directory, resource_name)
 

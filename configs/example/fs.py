@@ -76,6 +76,8 @@ def cmd_line_template():
 
 def build_test_system(np):
     cmdline = cmd_line_template()
+    isPIMsim = getattr(args, "mem_type", None)=="PIMsim" # >> KKM << 22/10/18
+    print("[[DEBUG 1]] isPIMsim : ", isPIMsim)
     if buildEnv['TARGET_ISA'] == "mips":
         test_sys = makeLinuxMipsSystem(test_mem_mode, bm[0], cmdline=cmdline)
     elif buildEnv['TARGET_ISA'] == "sparc":
@@ -84,8 +86,9 @@ def build_test_system(np):
         test_sys = makeBareMetalRiscvSystem(test_mem_mode, bm[0],
                                             cmdline=cmdline)
     elif buildEnv['TARGET_ISA'] == "x86":
+        # KKM 22/10/18 Added isPIMsim Option
         test_sys = makeLinuxX86System(test_mem_mode, np, bm[0], args.ruby,
-                                      cmdline=cmdline)
+                                      cmdline=cmdline, isPIMsim=isPIMsim)
     elif buildEnv['TARGET_ISA'] == "arm":
         test_sys = makeArmSystem(
             test_mem_mode,
@@ -107,6 +110,9 @@ def build_test_system(np):
 
     # Set the cache line size for the entire system
     test_sys.cache_line_size = args.cacheline_size
+
+    # >> KKM << 22.10.28 Set the fetch buffer size = cache_line_size
+    # test_sys.fetchBufferSize= 32
 
     # Create a top-level voltage domain
     test_sys.voltage_domain = VoltageDomain(voltage = args.sys_voltage)

@@ -131,8 +131,11 @@ def addNoISAOptions(parser):
                         help="Enable low-power states in DRAMInterface")
     parser.add_argument("--mem-channels-intlv", type=int, default=0,
                         help="Memory channels interleave")
-
     parser.add_argument("--memchecker", action="store_true")
+    # >> KKM << 22/10/19 Added for DRAMsim3/PIMsim Configuration
+    parser.add_argument("--ini-path", type=str,
+            default="ext/PIMsim/PIMsim/configs/HBM2_4Gb_test.ini",
+            help = "ini config path for DRAMsim3 or PIMsim")
 
     # Cache Options
     parser.add_argument("--external-memory-system", type=str,

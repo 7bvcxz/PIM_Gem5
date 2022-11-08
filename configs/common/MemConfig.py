@@ -134,6 +134,10 @@ def config_mem(options, system):
     opt_dram_powerdown = getattr(options, "enable_dram_powerdown", None)
     opt_mem_channels_intlv = getattr(options, "mem_channels_intlv", 128)
     opt_xor_low_bit = getattr(options, "xor_low_bit", 0)
+    # >> KKM 22/10/18
+    opt_ini_path = getattr(options, "ini-path", \
+    "ext/PIMsim/PIMsim/configs/HBM2_8GB.ini")
+    # KKM <<
 
     if opt_mem_type == "HMC_2500_1x32":
         HMChost = HMC.config_hmc_host_ctrl(options, system)
@@ -218,7 +222,20 @@ def config_mem(options, system):
                         "latency to 1ns.")
 
                 # Create the controller that will drive the interface
-                mem_ctrl = dram_intf.controller()
+                # >> KKM 22/10/18 Added DRAMsim3 Option
+                if opt_mem_type == "DRAMsim3":
+                    # mem_ctrl = m5.objects.DS3MemCtrl(opt_ini_path)
+                    # mem_ctrl.range = dram_intf.range
+                    # mem_ctrl.dram = dram_intf
+                    mem_ctrl = dram_intf.controller(opt_ini_path)
+                elif opt_mem_type == "PIMsim":
+                    # mem_ctrl = m5.objects.PIMsimMemCtrl(opt_ini_path)
+                    # mem_ctrl.range = dram_intf.range
+                    # mem_ctrl.dram = dram_intf
+                    mem_ctrl = dram_intf.controller(opt_ini_path)
+                else:
+                    mem_ctrl = dram_intf.controller()
+                # KKM <<
 
                 mem_ctrls.append(mem_ctrl)
 

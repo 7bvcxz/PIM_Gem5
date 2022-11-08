@@ -159,6 +159,7 @@ class KernelDiskWorkload:
         :param exit_on_work_items: Whether the simulation should exit on work
         items. True by default.
         """
+        print(">> kkm << kernel_disk_workload 1")
 
         # We assume this this is in a multiple-inheritance setup with an
         # Abstract board. This function will not work otherwise.
@@ -167,9 +168,11 @@ class KernelDiskWorkload:
         # If we are setting a workload of this type, we need to run as a
         # full-system simulation.
         self._set_fullsystem(True)
+        print(">> kkm << kernel_disk_workload 2")
 
         # Set the kernel to use.
         self.workload.object_file = kernel.get_local_path()
+        print(">> kkm << kernel_disk_workload 3")
 
         # Set the arguments to be passed to the kernel.
         self.workload.command_line = (
@@ -177,6 +180,7 @@ class KernelDiskWorkload:
         ).format(
             root_value=self.get_default_kernel_root_val(disk_image=disk_image)
         )
+        print(">> kkm << kernel_disk_workload 4")
 
         # Setting the bootloader information for ARM board. The current
         # implementation of the ArmBoard class expects a boot loader file to be
@@ -184,20 +188,25 @@ class KernelDiskWorkload:
 
         if bootloader is not None:
             self._bootloader = [bootloader.get_local_path()]
+        print(">> kkm << kernel_disk_workload 5")
 
         # Set the readfile.
         if readfile:
             self.readfile = readfile
         elif readfile_contents:
             self.readfile = os.path.join(m5.options.outdir, "readfile")
+        print(">> kkm << kernel_disk_workload 6")
 
         # Add the contents to the readfile, if specified.
         if readfile_contents:
             file = open(self.readfile, "w+")
             file.write(readfile_contents)
             file.close()
+        print(">> kkm << kernel_disk_workload 7")
 
         self._add_disk_to_board(disk_image=disk_image)
+        print(">> kkm << kernel_disk_workload 8")
 
         # Set whether to exit on work items.
         self.exit_on_work_items = exit_on_work_items
+        print(">> kkm << kernel_disk_workload 9")

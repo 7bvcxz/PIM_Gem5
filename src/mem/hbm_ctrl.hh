@@ -85,8 +85,6 @@ class HBMCtrl : public MemCtrl
      */
     void pruneBurstTick() override;
 
-    AddrRangeList getAddrRanges() override;
-
   public:
     HBMCtrl(const HBMCtrlParams &p);
 
