@@ -1,6 +1,6 @@
 comp = input("target computation : ")
 
-n_arr = comp + '/stats.txt'
+n_arr = 'm5out/'+comp+'/stats.txt'
 
 f = open(n_arr, 'r')
 lines = f.readlines()

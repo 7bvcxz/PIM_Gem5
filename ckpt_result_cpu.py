@@ -1,7 +1,6 @@
 comp = input("target computation : ")
-num_cpu = input("# of cpu : ")
 
-n_arr = comp + '-' + num_cpu + 'core/stats.txt'
+n_arr = 'm5out/'+comp+'/stats.txt'
 
 f = open(n_arr, 'r')
 lines = f.readlines()
